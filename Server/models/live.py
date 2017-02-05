@@ -45,6 +45,8 @@ class Live(DocType):
     liked_num = Integer()
     topics = Keyword()
     live_suggest = Completion(analyzer=ik_analyzer)
+    cover = Text(index='not_analyzed')
+    zhuanlan = Text(index='not_analyzed')
 
     @property
     def speaker(self):
@@ -134,11 +136,11 @@ class Live(DocType):
         return await cls._execute(s, order_by)
 
     @classmethod
-    async def get_hot_categories(cls):
+    async def get_hot_topics(cls):
         s = cls.search()
-        s.aggs.bucket('categories', A('terms', field='topics'))
+        s.aggs.bucket('topics', A('terms', field='topics'))
         rs = await s.execute()
-        buckets = rs.aggregations.categories.buckets
+        buckets = rs.aggregations.topics.buckets
         return [r['key'] for r in buckets]
 
     @classmethod

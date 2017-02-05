@@ -5,21 +5,31 @@ import sqlite3
 import logging
 from asyncio import Queue
 from datetime import datetime
+from urllib.parse import urlparse, parse_qsl, urlunparse, urlencode
 
 import aiohttp
+from elasticsearch_dsl import Q
 from elasticsearch_dsl.connections import connections
 
 from models import User, Live, session
 from models.live import init as live_init
 from client import ZhihuClient
 from utils import flatten_live_dict
-from config import SPEAKER_KEYS, LIVE_KEYS
+from config import SPEAKER_KEYS, LIVE_KEYS, ZHUANLAN_URL
 
 LIVE_API_URL = 'https://api.zhihu.com/lives/{type}?purchasable=0&limit=10&offset={offset}'  # noqa
+ZHUANLAN_API_URL = 'https://zhuanlan.zhihu.com/api/columns/zhihulive/posts?limit=20&offset={offset}'  # noqa
 LIVE_TYPE = frozenset(['ongoing', 'ended'])
 es = connections.get_connection(Live._doc_type.using)
 
-# logging.basicConfig(level=logging.DEBUG)
+
+def get_next_url(url):
+    url_parts = list(urlparse(url))
+    query = dict(parse_qsl(url_parts[4]))
+    query['offset'] = int(query['offset']) + int(query['limit'])
+    url_parts[4] = urlencode(query)
+    return urlunparse(url_parts)
+
 
 def gen_suggests(topics, tags, outline, username, subject):
     suggests = [{'input': item, 'weight': weight}
@@ -46,6 +56,7 @@ class Crawler:
         self.headers = {}
         client.auth(self)
         self._session = None
+        self.__stopped = {}.fromkeys(['ended', 'ongoing', 'posts'], False)
 
     @property
     def session(self):
@@ -57,7 +68,27 @@ class Crawler:
     def close(self):
         self.session.close()
 
-    async def parse_link(self, response):
+    async def parse_zhuanlan_link(self, response):
+        posts = await response.json()
+
+        if response.status == 200 and posts:
+            for post in posts:
+                cover = post['titleImage']
+                if not cover:
+                    continue
+                s = Live.search()
+                subject = post['title'].split()[-1]
+                speaker_id = post['author']['hash']
+                s = s.query(Q('match_phrase', subject=subject))
+                lives = await s.execute()
+                for live in lives:
+                    if live.speaker.speaker_id == speaker_id:
+                        zid = post['url'].split('/')[-1]
+                        await live.update(
+                            cover=cover, zhuanlan=ZHUANLAN_URL.format(zid))
+            return get_next_url(response.url)
+
+    async def parse_live_link(self, response):
         rs = await response.json()
 
         if response.status == 200:
@@ -108,10 +139,17 @@ class Crawler:
             return
 
         try:
-            next_url = await self.parse_link(response)
+            if 'api.zhihu.com' in url:
+                next_url = await self.parse_live_link(response)
+            else:
+                next_url = await self.parse_zhuanlan_link(response)
             print('{} has finished'.format(url))
             if next_url is not None:
                 self.add_url(next_url, max_redirect)
+            else:
+                for type in self.__stopped:
+                    if type in url:
+                        self.__stopped[type] = True
         finally:
             response.release()
 
@@ -119,7 +157,10 @@ class Crawler:
         try:
             while 1:
                 url, max_redirect = await self.q.get()
-                assert url in self.seen_urls
+                if url in self.seen_urls:
+                    type = url.split('/')[-1].split('?')[0]
+                    if not self.__stopped[type]:
+                        self.add_url(get_next_url(url), max_redirect)
                 await self.fetch(url, max_redirect)
                 self.q.task_done()
                 asyncio.sleep(1)
@@ -133,9 +174,14 @@ class Crawler:
             self.seen_urls.add(url)
             self.q.put_nowait((url, max_redirect))
 
+    def add_zhuanlan_urls(self):
+        for offset in range(self.max_tasks):
+            self.add_url(ZHUANLAN_API_URL.format(offset=offset * 20))
+
     async def crawl(self):
         self.__workers = [asyncio.Task(self.work(), loop=self.loop)
                           for _ in range(self.max_tasks)]
+        loop.call_later(5, self.add_zhuanlan_urls)
         self.t0 = time.time()
         await self.q.join()
         self.t1 = time.time()

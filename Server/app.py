@@ -1,7 +1,7 @@
 from sanic import Sanic
 from elasticsearch_dsl.connections import  connections
 
-from views.app import bp
+from views.api import bp
 from views.protocol import JSONHttpProtocol
 
 app = Sanic(__name__)

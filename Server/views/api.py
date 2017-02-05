@@ -9,7 +9,7 @@ from views.schemas import (
     LiveFullSchema, UserFullSchema, UserSchema, LiveSchema)
 from views.utils import marshal_with, str2date
 
-bp = Blueprint('api')
+bp = Blueprint('api', url_prefix='/api/v1')
 
 @bp.route('/search')
 @marshal_with([LiveSchema, UserSchema])
@@ -41,9 +41,16 @@ async def explore(request):
     return lives
 
 
-@bp.route('/hot_categories')
-async def categories(request):
-    categories = Live.get_hot_categories()
+@bp.route('/live/<live_id>')
+@marshal_with(LiveFullSchema)
+async def live(request):
+    live = await Live.get(live_id)
+    return live.to_dict()
+
+
+@bp.route('/hot_topics')
+async def topics(request):
+    categories = Live.get_hot_topics()
     return categories
 
 

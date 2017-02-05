@@ -13,6 +13,7 @@ ZHIHU_API_ROOT = 'https://api.zhihu.com'
 PEOPLE_URL = 'https://www.zhihu.com/people/{}'
 LIVE_URL = 'https://www.zhihu.com/live/{}'
 LIVE_USER_URL = 'https://www.zhihu.com/lives/users/{}'
+ZHUANLAN_URL = 'https://zhuanlan.zhihu.com/p/{}'
 LOGIN_URL = ZHIHU_API_ROOT + '/sign_in'
 CAPTCHA_URL = ZHIHU_API_ROOT + '/captcha'
 
