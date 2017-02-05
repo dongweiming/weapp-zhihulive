@@ -1,0 +1,89 @@
+import asyncio
+
+from sanic.exceptions import ServerError, NotFound
+from sanic import Blueprint
+
+from models import Live, User, session
+from config import SUGGEST_LIMIT
+from views.schemas import (
+    LiveFullSchema, UserFullSchema, UserSchema, LiveSchema)
+from views.utils import marshal_with, str2date
+
+bp = Blueprint('api')
+
+@bp.route('/search')
+@marshal_with([LiveSchema, UserSchema])
+async def search(request):
+    q = request.args.get('q')
+    status = request.args.get('status')
+    rs = User.suggest(q)
+    lives = await Live.ik_search(q, status, request.start, request.limit)
+    rs.extend(lives)
+    return rs
+
+
+@bp.route('/suggest')
+@marshal_with(LiveSchema)
+async def suggest(request):
+    q = request.args.get('q')
+    lives = await Live.ik_suggest(q, request.limit)
+    return lives
+
+
+@bp.route('/explore')
+@marshal_with(LiveFullSchema)
+async def explore(request):
+    from_ = str2date(request.args.get('from'))
+    to = str2date(request.args.get('to'))
+    order_by = request.args.get('order_by')
+    lives = await Live.explore(from_, to, order_by, request.start,
+                               request.limit)
+    return lives
+
+
+@bp.route('/hot_categories')
+async def categories(request):
+    categories = Live.get_hot_categories()
+    return categories
+
+
+@bp.route('/topic/<topic_name>')
+async def topic(request, topic_id):
+    from_ = str2date(request.args.get('from'))
+    to = str2date(request.args.get('to'))
+    order_by = request.args.get('order_by')
+    lives = await Live.explore(from_, to, order_by, request.start,
+                              request.limit, topic_name)
+    return lives
+
+
+@bp.route('/users')
+@marshal_with(UserFullSchema)
+async def users(request):
+    order_by = request.args.get('order_by', 'id')
+    desc = bool(request.args.get('desc', 0))
+    users = User.get_all(order_by, request.start, request.limit, desc)
+    return users
+
+
+@bp.route('/user/<user_id>')
+@marshal_with([LiveFullSchema, UserFullSchema])
+async def user(request, user_id):
+    user = session.query(User).get(user_id)
+    rs = [user.to_dict()]
+    lives = await Live.ik_search_by_speaker_id(user_id,
+                                               order_by='-starts_at')
+    rs.extend(lives)
+    return rs
+
+
+@bp.route('/hot/weekly')
+@marshal_with(LiveSchema)
+async def hot_weekly(request):
+    return await Live.get_hot_weekly()
+
+
+@bp.route('/hot/monthly')
+@marshal_with(LiveSchema)
+async def hot_monthly(request):
+    return await Live.get_hot_monthly()

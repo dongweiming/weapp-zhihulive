@@ -10,6 +10,9 @@ APP_SECRET = b'ecbefbf6b17e47ecb9035107866380'
 TOKEN_FILE = 'token.json'
 
 ZHIHU_API_ROOT = 'https://api.zhihu.com'
+PEOPLE_URL = 'https://www.zhihu.com/people/{}'
+LIVE_URL = 'https://www.zhihu.com/live/{}'
+LIVE_USER_URL = 'https://www.zhihu.com/lives/users/{}'
 LOGIN_URL = ZHIHU_API_ROOT + '/sign_in'
 CAPTCHA_URL = ZHIHU_API_ROOT + '/captcha'
 
@@ -24,4 +27,3 @@ SEARCH_FIELDS = ['subject^5', 'outline^2', 'description', 'topic_names^10',
                  'tag_names^5']
 SUGGEST_USER_LIMIT = 2
 SUGGEST_LIMIT = 6
-

@@ -1,0 +1,90 @@
+from datetime import datetime
+
+from sqlalchemy import (
+    Column, String, Integer, create_engine, SmallInteger, desc as _desc,
+    DateTime)
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.ext.declarative import declarative_base
+
+from config import DB_URI, SUGGEST_USER_LIMIT, PEOPLE_URL, LIVE_USER_URL
+
+Base = declarative_base()
+engine = create_engine(DB_URI)
+Base.metadata.bind = engine
+Session = sessionmaker(bind=engine)
+session = Session()
+
+
+class User(Base):
+    __tablename__ = 'test_user'
+
+    # 表的结构:
+    id = Column(Integer, unique=True, primary_key=True, autoincrement=True)
+    speaker_id = Column(String(40), index=True, unique=True)
+    name = Column(String(40), index=True, nullable=False)
+    gender = Column(SmallInteger, default=2)
+    headline = Column(String(200))
+    avatar_url = Column(String(100), nullable=False)
+    bio = Column(String(200))
+    description = Column(String())
+    live_count = Column(Integer, default=1)
+    updated_time = Column(DateTime, default=datetime.now)
+
+    @classmethod
+    def add(cls, **kwargs):
+        speaker_id = kwargs.get('speaker_id', None)
+        if id is not None:
+            q = session.query(cls).filter_by(speaker_id=speaker_id)
+            r = q.first()
+            if r:
+                kwargs['live_count'] = r.live_count + 1
+                q.update(kwargs)
+                return r
+        try:
+            r = cls(**kwargs)
+            session.add(r)
+            session.commit()
+        except:
+            session.rollback()
+            raise
+        else:
+            return r
+
+    @property
+    def url(self):
+        return PEOPLE_URL.format(self.speaker_id)
+
+    @property
+    def lives_url(self):
+        return LIVE_USER_URL.format(self.speaker_id)
+
+    @classmethod
+    def suggest(cls, q, limit=SUGGEST_USER_LIMIT):
+        query = session.query(User)
+        users = query.filter(User.name.like('%{}%'.format(q))).limit(limit).all()
+        return [user.to_dict() for user in users]
+
+    def to_dict(self):
+        d = {c.name: getattr(self, c.name, None)
+             for c in self.__table__.columns}
+        d.update({
+            'type': 'user',
+            'url': self.url,
+            'lives_url': self.lives_url
+        })
+        return d
+
+    @classmethod
+    def get_all(cls, order_by='id', start=0, limit=10, desc=False):
+        '''
+        :param order_by:  One of ``'id'``, ``'live_count'`` or
+                          ``'updated_time'``
+        '''
+        query = session.query(User)
+        order_by = getattr(User, order_by)
+        if desc:
+            order_by = _desc(order_by)
+        users = query.order_by(order_by).offset(start).limit(limit).all()
+        return [user.to_dict() for user in users]
+
+Base.metadata.create_all()
