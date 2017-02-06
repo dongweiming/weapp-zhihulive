@@ -3,8 +3,6 @@ from datetime import datetime
 from functools import wraps
 from collections import OrderedDict
 
-from marshmallow import ValidationError
-
 
 def marshal(data, fields):
     schemas = [field() for field in fields]

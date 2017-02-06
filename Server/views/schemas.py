@@ -59,3 +59,17 @@ class LiveFullSchema(LiveSchema):
 
     def get_cover_url(self, obj):
         return gen_pic_url(obj.get('cover', '/static/images/default-cover.png'))  # noqa
+
+
+class TopicSchema(Schema):
+    id = fields.Integer()
+    url = fields.Str()
+    avatar_url = fields.Method('get_avatar_url')
+    name = fields.Str()
+    best_answerers_count = fields.Integer()
+    best_answers_count = fields.Integer()
+    questions_count = fields.Integer()
+    followers_count = fields.Integer()
+
+    def get_avatar_url(self, obj):
+        return gen_pic_url(obj['avatar_url'])

@@ -6,7 +6,7 @@ from sanic import Blueprint
 from models import Live, User, session
 from config import SUGGEST_LIMIT
 from views.schemas import (
-    LiveFullSchema, UserFullSchema, UserSchema, LiveSchema)
+    LiveFullSchema, UserFullSchema, UserSchema, LiveSchema, TopicSchema)
 from views.utils import marshal_with, str2date
 
 bp = Blueprint('api', url_prefix='/api/v1')
@@ -49,9 +49,10 @@ async def live(request):
 
 
 @bp.route('/hot_topics')
+@marshal_with(TopicSchema)
 async def topics(request):
-    categories = Live.get_hot_topics()
-    return categories
+    topics = await Live.get_hot_topics()
+    return topics
 
 
 @bp.route('/topic/<topic_name>')

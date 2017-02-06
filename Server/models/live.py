@@ -9,6 +9,7 @@ from elasticsearch_dsl.analysis import CustomAnalyzer
 
 from config import SEARCH_FIELDS, LIVE_URL
 from .speaker import User, session
+from .topic import Topic
 
 connections.create_connection(hosts=['localhost'])
 gauss_sf = SF('gauss', starts_at={
@@ -136,12 +137,15 @@ class Live(DocType):
         return await cls._execute(s, order_by)
 
     @classmethod
-    async def get_hot_topics(cls):
+    async def get_hot_topics(cls, size=50):
         s = cls.search()
-        s.aggs.bucket('topics', A('terms', field='topics'))
+        s.aggs.bucket('topics', A('terms', field='topics', size=size))
         rs = await s.execute()
         buckets = rs.aggregations.topics.buckets
-        return [r['key'] for r in buckets]
+        topic_names = [r['key'] for r in buckets]
+        topics = session.query(Topic).filter(Topic.name.in_(topic_names)).all()
+        topics = sorted(topics, key=lambda t: topic_names.index(t.name))
+        return [topic.to_dict() for topic in topics]
 
     @classmethod
     async def ik_suggest(cls, query, size=10):
