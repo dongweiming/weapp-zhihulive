@@ -28,3 +28,4 @@ SEARCH_FIELDS = ['subject^5', 'outline^2', 'description', 'topic_names^10',
                  'tag_names^5']
 SUGGEST_USER_LIMIT = 2
 SUGGEST_LIMIT = 6
+DOMAIN = 'http://localhost:8300'

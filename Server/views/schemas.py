@@ -2,14 +2,25 @@
 from marshmallow import Schema, fields
 
 from models import User, session
+from config import DOMAIN
+
+
+def gen_pic_url(path):
+    if not path.startswith('/'):
+        path = '/' + path
+    return '{}{}'.format(DOMAIN, path)
+
 
 class UserSchema(Schema):
     id = fields.Integer()
     url = fields.Str()
     name = fields.Str()
     headline = fields.Str()
-    avatar_url = fields.Str()
+    avatar_url = fields.Method('get_avatar_url', allow_none=True)
     live_count = fields.Integer()
+
+    def get_avatar_url(self, obj):
+        return gen_pic_url(obj.avatar_url)
 
 
 class UserFullSchema(UserSchema):
@@ -21,7 +32,7 @@ class UserFullSchema(UserSchema):
 
 
 class LiveSchema(Schema):
-    id = fields.Integer()
+    id = fields.Str()
     url = fields.Str()
     speaker = fields.Nested(UserSchema)
     subject = fields.Str()
@@ -40,8 +51,11 @@ class LiveFullSchema(LiveSchema):
     speaker_message_count = fields.Integer()
     tag_names = fields.Str()
     liked_num = fields.Integer()
-    cover = fields.Str(allow_none=False)
-    zhuanlan = fields.Str(allow_none=False)
+    cover = fields.Method('get_cover_url', allow_none=True)
+    zhuanlan = fields.Str(allow_none=True)
 
     def get_start_time(self, obj):
         return int(obj['starts_at'].strftime('%s'))
+
+    def get_cover_url(self, obj):
+        return gen_pic_url(obj.get('cover', '/static/images/default-cover.png'))  # noqa

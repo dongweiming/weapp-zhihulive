@@ -37,8 +37,6 @@ class User(Base):
             q = session.query(cls).filter_by(speaker_id=speaker_id)
             r = q.first()
             if r:
-                kwargs['live_count'] = r.live_count + 1
-                q.update(kwargs)
                 return r
         try:
             r = cls(**kwargs)
@@ -49,6 +47,10 @@ class User(Base):
             raise
         else:
             return r
+
+    def incr_live_count(self):
+        self.live_count += 1
+        session.commit()
 
     @property
     def url(self):

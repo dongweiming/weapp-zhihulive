@@ -1,3 +1,4 @@
+import os
 import cgi
 import time
 import asyncio
@@ -20,7 +21,11 @@ from config import SPEAKER_KEYS, LIVE_KEYS, ZHUANLAN_URL
 LIVE_API_URL = 'https://api.zhihu.com/lives/{type}?purchasable=0&limit=10&offset={offset}'  # noqa
 ZHUANLAN_API_URL = 'https://zhuanlan.zhihu.com/api/columns/zhihulive/posts?limit=20&offset={offset}'  # noqa
 LIVE_TYPE = frozenset(['ongoing', 'ended'])
+IMAGE_FOLDER = 'static/images/zhihu'
 es = connections.get_connection(Live._doc_type.using)
+
+if not os.path.exists(IMAGE_FOLDER):
+    os.mkdir(IMAGE_FOLDER)
 
 
 def get_next_url(url):
@@ -65,6 +70,16 @@ class Crawler:
                 headers=self.headers, loop=self.loop)
         return self._session
 
+    async def convert_local_image(self, pic):
+        pic_name = pic.split('/')[-1]
+        path = os.path.join(IMAGE_FOLDER, pic_name)
+        if not os.path.exists(path):
+            async with self.session.get(pic) as resp:
+                content = await resp.read()
+                with open(path, 'wb') as f:
+                    f.write(content)
+        return path
+
     def close(self):
         self.session.close()
 
@@ -82,8 +97,9 @@ class Crawler:
                 s = s.query(Q('match_phrase', subject=subject))
                 lives = await s.execute()
                 for live in lives:
-                    if live.speaker.speaker_id == speaker_id:
+                    if live.speaker and live.speaker.speaker_id == speaker_id:
                         zid = post['url'].split('/')[-1]
+                        cover = await self.convert_local_image(cover)
                         await live.update(
                             cover=cover, zhuanlan=ZHUANLAN_URL.format(zid))
             return get_next_url(response.url)
@@ -95,6 +111,8 @@ class Crawler:
             for live in rs['data']:
                 speaker = live.pop('speaker')
                 speaker_id = speaker['member']['id']
+                speaker['member']['avatar_url'] = await self.convert_local_image(  # noqa
+                    speaker['member']['avatar_url'])
                 user = User.add(speaker_id=speaker_id,
                                 **flatten_live_dict(speaker, SPEAKER_KEYS))
                 live_dict = flatten_live_dict(live, LIVE_KEYS)
@@ -114,7 +132,9 @@ class Crawler:
                 live_dict['live_suggest'] = gen_suggests(
                     live_dict['topic_names'], tags, live_dict['outline'],
                     user.name, live_dict['subject'])
-                await Live.add(**live_dict)
+                result = await Live.add(**live_dict)
+                if result.meta['version'] == 1:
+                    user.incr_live_count()
 
             paging = rs['paging']
             if not paging['is_end']:

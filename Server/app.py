@@ -6,6 +6,8 @@ from views.protocol import JSONHttpProtocol
 
 app = Sanic(__name__)
 app.blueprint(bp)
+app.static('/static', './static')
+
 
 def set_loop(sanic, loop):
     conns = connections._conns
