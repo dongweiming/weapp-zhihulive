@@ -52,7 +52,7 @@ class LiveFullSchema(LiveSchema):
     tag_names = fields.Str()
     liked_num = fields.Integer()
     cover = fields.Method('get_cover_url', allow_none=True)
-    zhuanlan = fields.Str(allow_none=True)
+    zhuanlan_url = fields.Str(allow_none=True)
 
     def get_start_time(self, obj):
         return int(obj['starts_at'].strftime('%s'))

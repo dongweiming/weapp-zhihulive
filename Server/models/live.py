@@ -46,7 +46,7 @@ class Live(DocType):
     topics = Keyword()
     live_suggest = Completion(analyzer=ik_analyzer)
     cover = Text(index='not_analyzed')
-    zhuanlan = Text(index='not_analyzed')
+    zhuanlan_url = Text(index='not_analyzed')
 
     @property
     def speaker(self):

@@ -12,14 +12,15 @@ import aiohttp
 from elasticsearch_dsl import Q
 from elasticsearch_dsl.connections import connections
 
-from models import User, Live, session
+from models import User, Live, Topic, session
 from models.live import init as live_init
 from client import ZhihuClient
 from utils import flatten_live_dict
-from config import SPEAKER_KEYS, LIVE_KEYS, ZHUANLAN_URL
+from config import SPEAKER_KEYS, LIVE_KEYS, TOPIC_KEYS, ZHUANLAN_URL
 
 LIVE_API_URL = 'https://api.zhihu.com/lives/{type}?purchasable=0&limit=10&offset={offset}'  # noqa
 ZHUANLAN_API_URL = 'https://zhuanlan.zhihu.com/api/columns/zhihulive/posts?limit=20&offset={offset}'  # noqa
+TOPIC_API_URL = 'https://api.zhihu.com/topics/{}'
 LIVE_TYPE = frozenset(['ongoing', 'ended'])
 IMAGE_FOLDER = 'static/images/zhihu'
 es = connections.get_connection(Live._doc_type.using)
@@ -52,6 +53,7 @@ class Crawler:
         self.max_tasks = max_tasks
         self.q = Queue(loop=self.loop)
         self.seen_urls = set()
+        self.seen_topics = set()
         for t in LIVE_TYPE:
             for offset in range(max_tasks):
                 self.add_url(LIVE_API_URL.format(type=t, offset=offset * 10))
@@ -101,7 +103,7 @@ class Crawler:
                         zid = post['url'].split('/')[-1]
                         cover = await self.convert_local_image(cover)
                         await live.update(
-                            cover=cover, zhuanlan=ZHUANLAN_URL.format(zid))
+                            cover=cover, zhuanlan_url=ZHUANLAN_URL.format(zid))
             return get_next_url(response.url)
 
     async def parse_live_link(self, response):
@@ -116,7 +118,17 @@ class Crawler:
                 user = User.add(speaker_id=speaker_id,
                                 **flatten_live_dict(speaker, SPEAKER_KEYS))
                 live_dict = flatten_live_dict(live, LIVE_KEYS)
-                topics = [t['name'] for t in live_dict.pop('topics')]
+                topics = live_dict.pop('topics')
+                for topic in topics:
+                    topic_id = topic['id']
+                    if topic_id not in self.seen_topics:
+                        async with self.session.get(TOPIC_API_URL.format(topic_id)) as resp:  # noqa
+                            data = await resp.json()
+                            data['avatar_url'] = await self.convert_local_image(
+                                data['avatar_url'].replace('_s', '_r'))
+                            Topic.add_or_update(**flatten_live_dict(data, TOPIC_KEYS))
+                            self.seen_topics.add(topic_id)
+                topics = [t['name'] for t in topics]
                 tags = ' '.join(set(sum([(t['name'], t['short_name'])
                                          for t in live_dict.pop('tags')], ())))
                 live_dict['speaker_id'] = user.id
@@ -132,6 +144,7 @@ class Crawler:
                 live_dict['live_suggest'] = gen_suggests(
                     live_dict['topic_names'], tags, live_dict['outline'],
                     user.name, live_dict['subject'])
+
                 result = await Live.add(**live_dict)
                 if result.meta['version'] == 1:
                     user.incr_live_count()

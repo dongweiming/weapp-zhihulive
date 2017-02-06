@@ -16,7 +16,11 @@ session = Session()
 
 
 class User(Base):
-    __tablename__ = 'test_user'
+    __tablename__ = 'users'
+    __table_args__ = {
+        'mysql_engine': 'InnoDB',
+        'mysql_charset': 'utf8mb4'
+    }
 
     # 表的结构:
     id = Column(Integer, unique=True, primary_key=True, autoincrement=True)
@@ -26,7 +30,7 @@ class User(Base):
     headline = Column(String(200))
     avatar_url = Column(String(100), nullable=False)
     bio = Column(String(200))
-    description = Column(String())
+    description = Column(String(1000))
     live_count = Column(Integer, default=1)
     updated_time = Column(DateTime, default=datetime.now)
 
@@ -37,6 +41,7 @@ class User(Base):
             q = session.query(cls).filter_by(speaker_id=speaker_id)
             r = q.first()
             if r:
+                q.update(kwargs)
                 return r
         try:
             r = cls(**kwargs)

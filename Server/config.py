@@ -14,16 +14,19 @@ PEOPLE_URL = 'https://www.zhihu.com/people/{}'
 LIVE_URL = 'https://www.zhihu.com/live/{}'
 LIVE_USER_URL = 'https://www.zhihu.com/lives/users/{}'
 ZHUANLAN_URL = 'https://zhuanlan.zhihu.com/p/{}'
+TOPIC_URL = 'https://www.zhihu.com/topic{}/'
 LOGIN_URL = ZHIHU_API_ROOT + '/sign_in'
 CAPTCHA_URL = ZHIHU_API_ROOT + '/captcha'
 
-DB_URI = 'sqlite:///user.db'
+DB_URI = 'mysql+pymysql://localhost/test?charset=utf8mb4'
 
 SPEAKER_KEYS = ['name', 'gender', 'headline', 'avatar_url', 'bio',
                 'description']
 LIVE_KEYS = ['id', 'feedback_score', 'seats', 'subject', 'fee',
              'description', 'status', 'starts_at', 'outline',
              'speaker_message_count', 'liked_num', 'tags', 'topics']
+TOPIC_KEYS = ['id', 'avatar_url', 'best_answerers_count', 'best_answers_count',
+              'name', 'questions_count', 'followers_count']
 SEARCH_FIELDS = ['subject^5', 'outline^2', 'description', 'topic_names^10',
                  'tag_names^5']
 SUGGEST_USER_LIMIT = 2

@@ -1,5 +1,6 @@
 aiohttp==1.2.0
 SQLAlchemy==1.1.4
+PyMySQL==0.7.9
 Sanic==0.2.0
 marshmallow==2.12.1
 -e git+https://github.com/dongweiming/elasticsearch-py-async@416e7f02d7842c4efb4c3ed0f6159abb3d67e937#egg=elasticsearch_async
