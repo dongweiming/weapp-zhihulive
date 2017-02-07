@@ -65,7 +65,7 @@ class Live(DocType):
         d.update({
             'id': self._id,
             'type': 'live',
-            'speaker': self.speaker,
+            'speaker': self.speaker.to_dict(),
             'url': self.url
         })
         return d

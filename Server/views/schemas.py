@@ -1,8 +1,10 @@
 # coding=utf-8
+from functools import partialmethod
 from marshmallow import Schema, fields
 
 from models import User, session
 from config import DOMAIN
+WIDTH = 50
 
 
 def gen_pic_url(path):
@@ -11,16 +13,32 @@ def gen_pic_url(path):
     return '{}{}'.format(DOMAIN, path)
 
 
+def truncate_utf8(str, width=WIDTH):
+    return str[:width] + '...' if len(str) > width else str
+
+
+class Item(object):
+    def truncate(self, attr, obj):
+        if attr not in obj:
+            return ''
+        return truncate_utf8(obj[attr], WIDTH)
+
+    def get_pic_url(self, attr, obj, default=None):
+        return gen_pic_url(obj.get(attr, default))
+
+
 class UserSchema(Schema):
     id = fields.Integer()
     url = fields.Str()
     name = fields.Str()
-    headline = fields.Str()
-    avatar_url = fields.Method('get_avatar_url', allow_none=True)
+    bio = fields.Method('truncate_bio')
+    headline = fields.Method('truncate_headline')
+    avatar_url = fields.Method('get_avatar_url')
     live_count = fields.Integer()
-
-    def get_avatar_url(self, obj):
-        return gen_pic_url(obj.avatar_url)
+    type = fields.Str()
+    truncate_headline = partialmethod(Item.truncate, 'headline')
+    truncate_bio = partialmethod(Item.truncate, 'bio')
+    get_avatar_url = partialmethod(Item.get_pic_url, 'avatar_url')
 
 
 class UserFullSchema(UserSchema):
@@ -29,6 +47,7 @@ class UserFullSchema(UserSchema):
     gender = fields.Integer()
     bio = fields.Str()
     description = fields.Str()
+    headline = fields.Str()
 
 
 class LiveSchema(Schema):
@@ -40,25 +59,29 @@ class LiveSchema(Schema):
     amount = fields.Float()
     seats_taken = fields.Integer()
     topics = fields.List(fields.String)
+    cover = fields.Method('get_cover_url', allow_none=True)
+    starts_at = fields.Method('get_start_time')
+    outline = fields.Method('truncate_headline')
+    description = fields.Method('truncate_description')
+    liked_num = fields.Integer()
+    type = fields.Str()
+    truncate_headline = partialmethod(Item.truncate, 'headline')
+    truncate_description = partialmethod(Item.truncate, 'description')
+    get_cover_url = partialmethod(Item.get_pic_url, 'cover',
+                                  default='/static/images/default-cover.png')
+
+    def get_start_time(self, obj):
+         return int(obj['starts_at'].strftime('%s'))
 
 
 class LiveFullSchema(LiveSchema):
     speaker = fields.Nested(UserFullSchema)
-    description = fields.Str()
     status = fields.Boolean()  # public(True)/ended(False)
-    starts_at = fields.Method('get_start_time')
-    outline = fields.Str()
     speaker_message_count = fields.Integer()
     tag_names = fields.Str()
-    liked_num = fields.Integer()
-    cover = fields.Method('get_cover_url', allow_none=True)
+    description = fields.Str()
+    outline = fields.Str()
     zhuanlan_url = fields.Str(allow_none=True)
-
-    def get_start_time(self, obj):
-        return int(obj['starts_at'].strftime('%s'))
-
-    def get_cover_url(self, obj):
-        return gen_pic_url(obj.get('cover', '/static/images/default-cover.png'))  # noqa
 
 
 class TopicSchema(Schema):
@@ -70,6 +93,4 @@ class TopicSchema(Schema):
     best_answers_count = fields.Integer()
     questions_count = fields.Integer()
     followers_count = fields.Integer()
-
-    def get_avatar_url(self, obj):
-        return gen_pic_url(obj['avatar_url'])
+    get_avatar_url = partialmethod(Item.get_pic_url, 'avatar_url')

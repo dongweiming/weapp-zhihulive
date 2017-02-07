@@ -5,7 +5,7 @@ import time
 from config import APP_SECRET
 
 
-def gen_login_signature(data):
+def gen_signature(data):
     data['timestamp'] = str(int(time.time()))
 
     params = ''.join([

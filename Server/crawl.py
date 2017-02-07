@@ -59,11 +59,17 @@ class Crawler:
                 self.add_url(LIVE_API_URL.format(type=t, offset=offset * 10))
         self.t0 = time.time()
         self.t1 = None
-        client = ZhihuClient()
+        self.client = ZhihuClient()
         self.headers = {}
-        client.auth(self)
+        self.client.auth(self)
         self._session = None
         self.__stopped = {}.fromkeys(['ended', 'ongoing', 'posts'], False)
+
+    async def check_token(self):
+        async with self.session.get(
+            LIVE_API_URL.format(type='ended', offset=0)) as resp:
+            if resp.status == 401:
+                self.client.refresh_token()
 
     @property
     def session(self):
@@ -94,9 +100,11 @@ class Crawler:
                 if not cover:
                     continue
                 s = Live.search()
-                subject = post['title'].split()[-1]
+                title = post['title']
+                if '－－' in title:
+                    title = title.split('－－')[1].strip()
                 speaker_id = post['author']['hash']
-                s = s.query(Q('match_phrase', subject=subject))
+                s = s.query(Q('match_phrase', subject=title))
                 lives = await s.execute()
                 for live in lives:
                     if live.speaker and live.speaker.speaker_id == speaker_id:
@@ -212,6 +220,7 @@ class Crawler:
             self.add_url(ZHUANLAN_API_URL.format(offset=offset * 20))
 
     async def crawl(self):
+        await self.check_token()
         self.__workers = [asyncio.Task(self.work(), loop=self.loop)
                           for _ in range(self.max_tasks)]
         loop.call_later(5, self.add_zhuanlan_urls)

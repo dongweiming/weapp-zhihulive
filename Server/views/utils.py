@@ -9,7 +9,7 @@ def marshal(data, fields):
     if isinstance(data, (list, tuple)):
         return [marshal(d, fields) for d in data]
 
-    type = data.pop('type')
+    type = data.get('type')
     for schema in schemas:
         if type in schema.__class__.__name__.lower():
             result, errors = schema.dump(data)

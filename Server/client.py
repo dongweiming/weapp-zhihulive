@@ -10,7 +10,7 @@ from requests.packages.urllib3.exceptions import InsecureRequestWarning
 from config import (
     API_VERSION, APP_VERSION, APP_BUILD, UUID, UA, APP_ZA, CLIENT_ID,
     TOKEN_FILE, LOGIN_URL, CAPTCHA_URL)
-from utils import gen_login_signature
+from utils import gen_signature
 from exception import LoginException
 
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
@@ -87,6 +87,7 @@ class ZhihuClient:
     def __init__(self, token_file=TOKEN_FILE):
         self._session = requests.session()
         self._session.verify = False
+        self.token_file = token_file
 
         if os.path.exists(token_file):
             self._token = ZhihuToken.from_file(token_file)
@@ -94,16 +95,27 @@ class ZhihuClient:
             print('----- Zhihu OAuth Login -----')
             username = input('Username: ')
             password = getpass.getpass('Password: ')
-            self._login_auth = ZhihuOAuth()
-            json_dict = self.login(username, password)
-            ZhihuToken.save_file(token_file, json_dict)
+            self.login(username, password)
         self.auth = ZhihuOAuth(self._token)
 
+    def save_token(self, auth, data):
+        res = self._session.post(LOGIN_URL, auth=auth, data=data)
+        try:
+            json_dict = res.json()
+            if 'error' in json_dict:
+                raise LoginException(json_dict['error']['message'])
+            self._token = ZhihuToken.from_dict(json_dict)
+        except (ValueError, KeyError) as e:
+            raise LoginException(str(e))
+        else:
+            ZhihuToken.save_file(self.token_file, json_dict)
+
     def login(self, username, password):
+        self._login_auth = ZhihuOAuth()
         data = LOGIN_DATA.copy()
         data['username'] = username
         data['password'] = password
-        gen_login_signature(data)
+        gen_signature(data)
 
         if self.need_captcha():
             captcha_image = self.get_captcha()
@@ -126,15 +138,7 @@ class ZhihuClient:
             except (ValueError, KeyError) as e:
                 raise LoginException('Maybe input wrong captcha value')
 
-        res = self._session.post(LOGIN_URL, auth=self._login_auth, data=data)
-        try:
-            json_dict = res.json()
-            if 'error' in json_dict:
-                raise LoginException(json_dict['error']['message'])
-            self._token = ZhihuToken.from_dict(json_dict)
-            return json_dict
-        except (ValueError, KeyError) as e:
-            raise LoginException(str(e))
+        self.save_token(self._login_auth, data)
 
     def need_captcha(self):
         res = self._session.get(CAPTCHA_URL, auth=self._login_auth)
@@ -144,6 +148,13 @@ class ZhihuClient:
         except KeyError:
             raise LoginException('Show captcha fail!')
 
+    def refresh_token(self):
+        data = LOGIN_DATA.copy()
+        data['grant_type'] = 'refresh_token'
+        data['refresh_token'] = self._token.refresh_token
+        gen_signature(data)
+        auth = ZhihuOAuth(self._token)
+        self.save_token(auth, data)
 
 if __name__ == '__main__':
     client = ZhihuClient()

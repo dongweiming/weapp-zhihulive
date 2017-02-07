@@ -17,6 +17,8 @@ async def search(request):
     q = request.args.get('q')
     status = request.args.get('status')
     rs = User.suggest(q)
+    if status is not None:
+        status = status == 'ongoing'
     lives = await Live.ik_search(q, status, request.start, request.limit)
     rs.extend(lives)
     return rs
