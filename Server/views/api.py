@@ -55,11 +55,13 @@ async def topics(request):
     return topics
 
 
-@bp.route('/topic/<topic_name>')
-async def topic(request, topic_id):
+@bp.route('/topic')
+@marshal_with(LiveFullSchema)
+async def topic(request):
     from_ = str2date(request.args.get('from'))
     to = str2date(request.args.get('to'))
     order_by = request.args.get('order_by')
+    topic_name = request.args.get('topic')
     lives = await Live.explore(from_, to, order_by, request.start,
                               request.limit, topic_name)
     return lives
