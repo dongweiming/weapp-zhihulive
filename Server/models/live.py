@@ -58,7 +58,7 @@ class Live(DocType):
         return LIVE_URL.format(self.id)
 
     class Meta:
-        index = 'live102'
+        index = 'live110'
 
     def to_dict(self):
         d = self._d_.copy()

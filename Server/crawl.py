@@ -114,6 +114,13 @@ class Crawler:
                             cover=cover, zhuanlan_url=ZHUANLAN_URL.format(zid))
             return get_next_url(response.url)
 
+    async def parse_topic_link(self, response):
+        rs = await response.json()
+        if response.status == 200:
+            rs['avatar_url'] = await self.convert_local_image(
+                rs['avatar_url'].replace('_s', '_r'))
+            Topic.add_or_update(**flatten_live_dict(rs, TOPIC_KEYS))
+
     async def parse_live_link(self, response):
         rs = await response.json()
 
@@ -130,12 +137,10 @@ class Crawler:
                 for topic in topics:
                     topic_id = topic['id']
                     if topic_id not in self.seen_topics:
-                        async with self.session.get(TOPIC_API_URL.format(topic_id)) as resp:  # noqa
-                            data = await resp.json()
-                            data['avatar_url'] = await self.convert_local_image(
-                                data['avatar_url'].replace('_s', '_r'))
-                            Topic.add_or_update(**flatten_live_dict(data, TOPIC_KEYS))
-                            self.seen_topics.add(topic_id)
+                        self.seen_topics.add(topic_id)
+                        self.add_url(TOPIC_API_URL.format(topic_id),
+                                     self.max_redirect)
+
                 topics = [t['name'] for t in topics]
                 tags = ' '.join(set(sum([(t['name'], t['short_name'])
                                          for t in live_dict.pop('tags')], ())))
@@ -181,7 +186,9 @@ class Crawler:
 
         try:
             if 'api.zhihu.com' in url:
-                next_url = await self.parse_live_link(response)
+                parse_func = (self.parse_topic_link if 'topics' in url
+                        else self.parse_live_link)
+                next_url = await parse_func(response)
             else:
                 next_url = await self.parse_zhuanlan_link(response)
             print('{} has finished'.format(url))
@@ -200,7 +207,7 @@ class Crawler:
                 url, max_redirect = await self.q.get()
                 if url in self.seen_urls:
                     type = url.split('/')[-1].split('?')[0]
-                    if not self.__stopped[type]:
+                    if not type.isdigit() and not self.__stopped[type]:
                         self.add_url(get_next_url(url), max_redirect)
                 await self.fetch(url, max_redirect)
                 self.q.task_done()
