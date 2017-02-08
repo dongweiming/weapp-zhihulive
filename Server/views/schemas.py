@@ -4,7 +4,7 @@ from marshmallow import Schema, fields
 
 from models import User, session
 from config import DOMAIN
-WIDTH = 50
+WIDTH = 40
 
 
 def gen_pic_url(path):

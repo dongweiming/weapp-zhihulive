@@ -50,6 +50,10 @@ class Live(DocType):
     zhuanlan_url = Text(index='not_analyzed')
 
     @property
+    def id(self):
+        return self._id
+
+    @property
     def speaker(self):
         return session.query(User).get(self.speaker_id)
 
@@ -58,16 +62,17 @@ class Live(DocType):
         return LIVE_URL.format(self.id)
 
     class Meta:
-        index = 'live110'
+        index = 'live130'
 
-    def to_dict(self):
-        d = self._d_.copy()
-        d.update({
-            'id': self._id,
-            'type': 'live',
-            'speaker': self.speaker.to_dict(),
-            'url': self.url
-        })
+    def to_dict(self, include_extended=True):
+        d = super().to_dict()
+        if include_extended:
+            d.update({
+                'id': self._id,
+                'type': 'live',
+                'speaker': self.speaker.to_dict(),
+                'url': self.url
+            })
         return d
 
     @classmethod

@@ -31,7 +31,7 @@ class User(Base):
     avatar_url = Column(String(100), nullable=False)
     bio = Column(String(200))
     description = Column(String(1000))
-    live_count = Column(Integer, default=1)
+    live_count = Column(Integer, default=0)
     updated_time = Column(DateTime, default=datetime.now)
 
     @classmethod

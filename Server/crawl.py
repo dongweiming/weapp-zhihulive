@@ -1,4 +1,5 @@
 import os
+import re
 import cgi
 import time
 import asyncio
@@ -11,6 +12,7 @@ from urllib.parse import urlparse, parse_qsl, urlunparse, urlencode
 import aiohttp
 from elasticsearch_dsl import Q
 from elasticsearch_dsl.connections import connections
+from elasticsearch.exceptions import NotFoundError
 
 from models import User, Live, Topic, session
 from models.live import init as live_init
@@ -23,6 +25,7 @@ ZHUANLAN_API_URL = 'https://zhuanlan.zhihu.com/api/columns/zhihulive/posts?limit
 TOPIC_API_URL = 'https://api.zhihu.com/topics/{}'
 LIVE_TYPE = frozenset(['ongoing', 'ended'])
 IMAGE_FOLDER = 'static/images/zhihu'
+LIVE_REGEX = re.compile(r'<a href="https://(www.)?zhihu.com/lives/(\d+)(.*)?"')  # noqa
 es = connections.get_connection(Live._doc_type.using)
 
 if not os.path.exists(IMAGE_FOLDER):
@@ -54,6 +57,7 @@ class Crawler:
         self.q = Queue(loop=self.loop)
         self.seen_urls = set()
         self.seen_topics = set()
+        self.seen_zhuanlan = set()
         for t in LIVE_TYPE:
             for offset in range(max_tasks):
                 self.add_url(LIVE_API_URL.format(type=t, offset=offset * 10))
@@ -67,7 +71,7 @@ class Crawler:
 
     async def check_token(self):
         async with self.session.get(
-            LIVE_API_URL.format(type='ended', offset=0)) as resp:
+                LIVE_API_URL.format(type='ended', offset=0)) as resp:
             if resp.status == 401:
                 self.client.refresh_token()
 
@@ -101,18 +105,37 @@ class Crawler:
                     continue
                 s = Live.search()
                 title = post['title']
-                if '－－' in title:
-                    title = title.split('－－')[1].strip()
+                for sep in ('－', '—'):
+                    if sep in title:
+                        title = title.split(sep)[-1].strip()
                 speaker_id = post['author']['hash']
+                zid = post['url'].split('/')[-1]
                 s = s.query(Q('match_phrase', subject=title))
                 lives = await s.execute()
                 for live in lives:
                     if live.speaker and live.speaker.speaker_id == speaker_id:
-                        zid = post['url'].split('/')[-1]
-                        cover = await self.convert_local_image(cover)
-                        await live.update(
-                            cover=cover, zhuanlan_url=ZHUANLAN_URL.format(zid))
+                        await self.update_live(zid, cover, live)
+                        break
+                else:
+                    match = LIVE_REGEX.search(post['content'])
+                    if match:
+                        live_id = match.group(2)
+                        try:
+                            live = await Live.get(live_id)
+                        except NotFoundError:
+                            pass
+                        else:
+                            await self.update_live(zid, cover, live)
+
             return get_next_url(response.url)
+
+    async def update_live(self, zid, cover, live):
+        if live.id in self.seen_zhuanlan:
+            return
+        self.seen_zhuanlan.add(live.id)
+        zhuanlan_url = ZHUANLAN_URL.format(zid)
+        cover = await self.convert_local_image(cover)
+        await live.update(cover=cover, zhuanlan_url=zhuanlan_url)
 
     async def parse_topic_link(self, response):
         rs = await response.json()
@@ -187,7 +210,7 @@ class Crawler:
         try:
             if 'api.zhihu.com' in url:
                 parse_func = (self.parse_topic_link if 'topics' in url
-                        else self.parse_live_link)
+                              else self.parse_live_link)
                 next_url = await parse_func(response)
             else:
                 next_url = await self.parse_zhuanlan_link(response)
@@ -230,8 +253,9 @@ class Crawler:
         await self.check_token()
         self.__workers = [asyncio.Task(self.work(), loop=self.loop)
                           for _ in range(self.max_tasks)]
-        loop.call_later(5, self.add_zhuanlan_urls)
         self.t0 = time.time()
+        await self.q.join()
+        self.add_zhuanlan_urls()
         await self.q.join()
         self.t1 = time.time()
         for w in self.__workers:
