@@ -4,4 +4,4 @@ PyMySQL==0.7.9
 Sanic==0.2.0
 marshmallow==2.12.1
 -e git+https://github.com/dongweiming/elasticsearch-py-async@416e7f02d7842c4efb4c3ed0f6159abb3d67e937#egg=elasticsearch_async
--e git+https://github.com/dongweiming/elasticsearch-dsl-py@920eb0799d2712e05e958488531b695b268ccbf6#egg=elasticsearch_dsl
+-e git+https://github.com/dongweiming/elasticsearch-dsl-py@4a4a987bb66b72b55e75479c476179c150eed3e7#egg=elasticsearch_dsl

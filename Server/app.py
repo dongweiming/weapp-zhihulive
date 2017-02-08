@@ -1,5 +1,5 @@
 from sanic import Sanic
-from elasticsearch_dsl.connections import  connections
+from elasticsearch_dsl.connections import connections
 
 from views.api import bp
 from views.protocol import JSONHttpProtocol
