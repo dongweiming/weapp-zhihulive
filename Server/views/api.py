@@ -16,7 +16,7 @@ bp = Blueprint('api', url_prefix='/api/v1')
 async def search(request):
     q = request.args.get('q')
     status = request.args.get('status')
-    rs = User.suggest(q)
+    rs = User.suggest(q, request.start, request.limit)
     if status is not None:
         status = status == 'ongoing'
     lives = await Live.ik_search(q, status, request.start, request.limit)

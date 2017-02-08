@@ -66,9 +66,10 @@ class User(Base):
         return LIVE_USER_URL.format(self.speaker_id)
 
     @classmethod
-    def suggest(cls, q, limit=SUGGEST_USER_LIMIT):
+    def suggest(cls, q, start=0, limit=SUGGEST_USER_LIMIT):
         query = session.query(User)
-        users = query.filter(User.name.like('%{}%'.format(q))).limit(limit).all()
+        users = query.filter(User.name.like('%{}%'.format(q))).offset(
+            start).limit(limit).all()
         return [user.to_dict() for user in users]
 
     def to_dict(self):
