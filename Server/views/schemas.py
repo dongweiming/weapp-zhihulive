@@ -4,7 +4,7 @@ from marshmallow import Schema, fields
 
 from models import User, session
 from config import DOMAIN
-WIDTH = 40
+WIDTH = 45
 
 
 def gen_pic_url(path):
@@ -33,11 +33,13 @@ class UserSchema(Schema):
     name = fields.Str()
     bio = fields.Method('truncate_bio')
     headline = fields.Method('truncate_headline')
+    description = fields.Method('truncate_description')
     avatar_url = fields.Method('get_avatar_url')
     live_count = fields.Integer()
     type = fields.Str()
     truncate_headline = partialmethod(Item.truncate, 'headline')
     truncate_bio = partialmethod(Item.truncate, 'bio')
+    truncate_description = partialmethod(Item.truncate, 'description')
     get_avatar_url = partialmethod(Item.get_pic_url, 'avatar_url')
 
 
