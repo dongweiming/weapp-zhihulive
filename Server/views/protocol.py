@@ -27,7 +27,7 @@ class JSONHttpProtocol(HttpProtocol):
     def write_response(self, response):
         if isinstance(response, str):
             response = text(response)
-        elif isinstance(response, list):
+        elif isinstance(response, (list, dict)):
             response = {'rs': response}
         if isinstance(response, dict):
             response = json(response)

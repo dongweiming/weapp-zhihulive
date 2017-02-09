@@ -45,7 +45,7 @@ async def explore(request):
 
 @bp.route('/live/<live_id>')
 @marshal_with(LiveFullSchema)
-async def live(request):
+async def live(request, live_id):
     live = await Live.get(live_id)
     return live.to_dict()
 
