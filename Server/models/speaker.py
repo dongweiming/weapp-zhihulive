@@ -37,19 +37,20 @@ class User(Base):
     @classmethod
     def add(cls, **kwargs):
         speaker_id = kwargs.get('speaker_id', None)
+        r = None
         if id is not None:
             q = session.query(cls).filter_by(speaker_id=speaker_id)
             r = q.first()
             if r:
                 q.update(kwargs)
-                return r
-        try:
+
+        if r is None:
             r = cls(**kwargs)
             session.add(r)
+        try:
             session.commit()
         except:
             session.rollback()
-            raise
         else:
             return r
 

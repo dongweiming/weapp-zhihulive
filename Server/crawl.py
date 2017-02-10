@@ -141,7 +141,7 @@ class Crawler:
         rs = await response.json()
         if response.status == 200:
             rs['avatar_url'] = await self.convert_local_image(
-                rs['avatar_url'].replace('_s', '_r'))
+                rs['avatar_url'].replace('_s', '_xl'))
             Topic.add_or_update(**flatten_live_dict(rs, TOPIC_KEYS))
 
     async def parse_live_link(self, response):
@@ -152,7 +152,7 @@ class Crawler:
                 speaker = live.pop('speaker')
                 speaker_id = speaker['member']['id']
                 speaker['member']['avatar_url'] = await self.convert_local_image(  # noqa
-                    speaker['member']['avatar_url'])
+                    speaker['member']['avatar_url'].replace('_s', '_xl'))
                 user = User.add(speaker_id=speaker_id,
                                 **flatten_live_dict(speaker, SPEAKER_KEYS))
                 live_dict = flatten_live_dict(live, LIVE_KEYS)
