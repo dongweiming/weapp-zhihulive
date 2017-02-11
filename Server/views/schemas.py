@@ -50,6 +50,7 @@ class UserFullSchema(UserSchema):
     bio = fields.Str()
     description = fields.Str()
     headline = fields.Str()
+    gender = fields.Integer()
 
 
 class LiveSchema(Schema):
