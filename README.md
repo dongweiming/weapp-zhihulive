@@ -7,7 +7,7 @@
 
 ![设计图](./screenshot/zhihulive.png)
 
-<img src='./screenshot/zhihulive.gif' alt='效果图' width='300px'>
+如果在wifi情况下或者土豪不介意流量的同学可以直接[感受实际使用的动态效果](./screenshot/zhihulive.gif)
 
 ## Getting started
 
