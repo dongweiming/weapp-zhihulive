@@ -80,8 +80,9 @@ Page({
   },
   onViewTap(e) {
     const ds = e.currentTarget.dataset;
+    const t = ds['type'] === 'live' ? 'live/live' : 'users/user'
     wx.navigateTo({
-      url: `../live/live?id=${ds.id}`,
+      url: `../${t}?id=${ds.id}`,
     });
   },
 });
