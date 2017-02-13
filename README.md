@@ -7,7 +7,7 @@
 
 ![设计图](./screenshot/zhihulive.png)
 
-![效果图](./screenshot/zhihulive.gif)
+<img src='./screenshot/zhihulive.gif' alt='效果图' width='300px'>
 
 ## Getting started
 
