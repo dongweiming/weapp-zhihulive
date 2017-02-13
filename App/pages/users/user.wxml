@@ -1,0 +1,31 @@
+<import src="../../components/live/live_small.wxml" />
+<scroll-view class="list" style="height: {{ windowHeight - 70 / pixelRatio }}px; width: {{ windowWidth }}px;" scroll-y="true" lower-threshold="800">
+  <view class="m-user" data-id="{{ user.id }}" data-type="user">
+    <view class="cover">
+      <image></image>
+    </view>
+    <view class="main">
+      <view class="info">
+        <view class="avatar">
+          <image src="{{ user.avatar_url }}" background-size="cover"></image>
+        </view>
+        <view class="content">
+          <view class="username">{{ user.name }}</view>
+          <view class="headline">{{ user.headline || user.bio }}</view>
+        </view>
+        <view class="desc">
+          <text class="label">个人简介</text>
+          <view class="value">{{ user.description }}</view>
+        </view>
+      </view>
+    </view>
+  </view>
+  <view class="m-live-count">
+    {{user.gender}}举办的Live({{ user.live_count }})
+  </view>
+  <view class="sep" wx:if="{{users}}"></view>
+  <block wx:for="{{ lives }}" wx:for-item="live" wx:key="live.id">
+    <template is="m-live" data="{{live: live}}" />
+  </block>
+  <view class="all" bindtap="viewUserList">全部Live主讲人</view>
+</scroll-view>

@@ -1,0 +1,45 @@
+<import src="../../components/live/live_small.wxml" />
+<import src="../../components/user/user_small.wxml" />
+<import src="../../components/widget/rating.wxml" />
+<template name="m-live-s">
+  <view class="m-live-s" bindtap="onViewTap" data-id="{{ live.id }}" data-type="live">
+    <image class="cover" src="{{ live.cover }}" background-size="cover"></image>
+    <view class="info">
+      <view class="title">
+        <text>{{ live.subject }}</text>
+      </view>
+      <view class="rating">
+        <template is="m-rating" data="{{count: live.feedback_score, size: 'm'}}" />
+      </view>
+      <view class="detail">{{ live.liked_num }} 喜欢 / {{ live.seats_taken }} 参加</view>
+    </view>
+  </view>
+</template>
+<scroll-view scroll-x="true" class="header">
+  <view class="nav">
+    <view class="{{ status === 'all' ? 'selected' : ''}}" data-status="all" bindtap="onChangeTab">全部</view>
+    <view class="{{ status === 'ended' ? 'selected' : ''}}" data-status="ended" bindtap="onChangeTab">已结束</view>
+    <view class="{{ status === 'ongoing' ? 'selected' : ''}}" data-status="ongoing" bindtap="onChangeTab">未结束</view>
+    <view class="topic" bindtap="viewHotTopics">
+      <view class="text">热门话题</view>
+    </view>
+  </view>
+</scroll-view>
+<view class="search">
+  <input class="search-input" bindinput="bindKeyInput" placeholder="输入你要搜索的内容" />
+  <label bindtap="onSearch" class="search-icon"></label>
+</view>
+<view class="suggest">
+  <block wx:for="{{ lives }}" wx:if="{{suggest}}" wx:for-item="live" wx:key="live.id">
+    <template is="m-live-s" data="{{live: live}}" />
+  </block>
+</view>
+<scroll-view class="list" style="height: {{ windowHeight - 70 / pixelRatio }}px; width: {{ windowWidth }}px;" scroll-y="true" bindscrolltolower="loadMore" lower-threshold="800">
+  <block wx:for="{{ users }}" wx:for-item="user" wx:key="user.id">
+    <template is="m-user" data="{{user: user}}" />
+  </block>
+  <view class="sep" wx:if="{{users}}"></view>
+  <block wx:for="{{ lives }}" wx:if="{{!suggest}}" wx:for-item="live" wx:key="live.id">
+    <template is="m-live" data="{{live: live}}" />
+  </block>
+</scroll-view>

@@ -1,0 +1,17 @@
+<import src="../widget/rating.wxml" />
+<template name="m-user">
+  <view class="m-user" bindtap="onViewTap" data-id="{{ user.id }}" data-type="user">
+    <image class="cover" src="{{ user.avatar_url }}" background-size="cover"></image>
+    <view class="info">
+      <view class="title">
+        <text>{{ user.name }}</text>
+      </view>
+      <view class="desc">
+        <view>
+          <text>{{ user.bio || user.headline || description }}</text>
+        </view>
+      </view>
+      <view class="detail">举办过 {{ user.live_count }} 场Live ⚡️</view>
+    </view>
+  </view>
+</template>

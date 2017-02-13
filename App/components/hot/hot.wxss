@@ -1,0 +1,55 @@
+@import "../../components/live/live_middle.wxss";
+
+page {
+  background-color: #fff;
+}
+
+.header {
+  margin-top: 20rpx;
+  border-radius: 8rpx 8rpx 0 0;
+  position: relative;
+  height: 96rpx;
+  display: flex;
+  -webkit-box-pack: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  z-index: 1;
+  border-bottom: 2rpx solid #eee;
+  border-image-slice: 0 0 1;
+}
+
+.nav {
+  display: inline-block;
+  border: 2rpx solid #4abdcc;
+  border-radius: 8rpx;
+}
+
+.nav .selected {
+  background: #4abdcc;
+  color: #fff;
+}
+
+.nav view {
+  text-align: center;
+  min-width: 184rpx;
+  display: inline-block;
+  padding: 19rpx 32rpx;
+  box-sizing: border-box;
+  line-height: 1;
+  font-weight: 500;
+  font-size: 26rpx;
+  color: #4abdcc;
+}
+
+.banner {
+  width: 100%;
+  height: 100px;
+  background-color: rgb(255, 255, 255);
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-image: url(http://localhost:8300/static/images/weekly.svg);
+}

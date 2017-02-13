@@ -161,6 +161,8 @@ class Live(DocType):
         suggestions = await s.execute_suggest()
         matches = suggestions.live_suggestion[0].options
         ids = [match._id for match in matches]
+        if not ids:
+            return []
         lives = await Live.mget(ids)
         return [live.to_dict() for live in lives]
 

@@ -1,0 +1,36 @@
+<import src="../../components/widget/rating.wxml" />
+<view class="m-live-header" bindtap="onViewTap" data-id="{{ live.id }}" data-type="live">
+  <image class="cover" src="{{ live.cover }}" mode="aspectFill"></image>
+  <view class="info">
+    <text class="h2">{{ live.subject }}</text>
+    <view class="rating">
+      <template is="m-rating" data="{{count: live.feedback_score, size: 'm'}}" />
+    </view>
+  </view>
+</view>
+<view class="m-live-info">
+  <view class="user">
+    <image bindtap="onViewTap" class="avatar" src="{{ live.speaker.avatar_url }}" data-id="{{ live.speaker.id }}"></image>
+    <view>
+      <view bindtap="onViewTap" data-id="{{ live.speaker.id }}" class="name">主讲人: {{ live.speaker.name }}</view>
+      <view class="desc">
+        <text> {{ live.seats_taken }} 参与 / {{ live.liked_num }} 喜欢 / {{ live.speaker_message_count }} 个回答</text>
+      </view>
+    </view>
+  </view>
+  <view class="detail">
+    <text>开始时间 {{ live.starts_at }}</text>
+  </view>
+  <view class="sep"></view>
+  <button>赞助并参加（{{live.amount}}）</button>
+</view>
+<view class="m-live-intro">
+  <text class="h2">Live 简介</text>
+  <view class="content">
+    <block wx:for="{{ live.description }}" wx:for-item="item" wx:key="item">
+      <view>
+        <text>{{item}}"</text>
+      </view>
+    </block>
+  </view>
+</view>

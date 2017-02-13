@@ -1,0 +1,154 @@
+@import "../../components/widget/rating.wxss";
+
+page {
+  background-color: #efeff4;
+}
+
+.m-live-header {
+  overflow: hidden;
+  position: relative;
+  border-radius: 8rpx;
+  margin-bottom: 20rpx;
+}
+
+.m-live-header .cover {
+  width: 100%;
+  height: 352rpx;
+  vertical-align: bottom;
+}
+
+.m-live-header::before {
+  content: '';
+  display: block;
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  border-top-left-radius: 8rpx;
+  border-bottom-left-radius: 8rpx;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.6) 0, rgba(0, 0, 0, 0) 100%);
+}
+
+.m-live-header .info {
+  color: #fff;
+  padding: 0 30rpx;
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  z-index: 1;
+  box-sizing: border-box;
+}
+
+.m-live-header .info .h2 {
+  font-size: 40rpx;
+  font-weight: 600;
+  line-height: 1.22;
+  text-shadow: 2rpx 2rpx rgba(0, 0, 0, 0.4);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  -webkit-line-clamp: 2;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  margin-top: 218rpx;
+}
+
+.m-live-info {
+  position: relative;
+  background-color: #fff;
+  margin-bottom: 20rpx;
+  padding: 20rpx;
+}
+
+.m-live-info .detail {
+  margin-top: 20rpx;
+  line-height: 1;
+  display: inline-block;
+  font-size: 28rpx;
+  line-height: 1;
+  color: #646464;
+}
+
+.m-live-info .desc {
+  display: inline-block;
+  font-size: 24rpx;
+  line-height: 1;
+  color: #999;
+}
+
+.m-live-info .sep {
+  border-top: 2rpx solid #eee;
+  height: 20rpx;
+  margin-top: 20rpx;
+}
+
+.m-live-info .user {
+  position: relative;
+  display: flex;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  margin-bottom: 20rpx;
+}
+
+.m-live-info .avatar {
+  width: 50px;
+  height: 50px;
+  vertical-align: top;
+  margin-right: 12px;
+  display: inline-block;
+  overflow: hidden;
+  border-radius: 10%;
+}
+
+.m-live-info .name {
+  overflow: hidden;
+  flex: 1;
+  align-items: center;
+  color: #646464;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.m-live-header .rating {
+  color: #999;
+  font-size: 22rpx;
+  margin-top: 8rpx;
+}
+
+.m-live-header .rating image {
+  width: 26rpx;
+  height: 26rpx;
+  margin-right: 7rpx;
+}
+
+.m-live-header .m-rating {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.button-hover {
+  background-color: #0097a7;
+}
+
+button {
+  background-color: #4abdcc;
+  border-color: #4abdcc;
+  font-weight: 500;
+  color: #fff;
+}
+
+.m-live-intro {
+  padding: 15px;
+  background-color: #fff;
+}
+
+.m-live-intro .content {
+  color: #646464;
+  font-weight: 400;
+  font-size: 15px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+}

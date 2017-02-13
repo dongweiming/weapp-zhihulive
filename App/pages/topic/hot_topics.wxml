@@ -1,0 +1,11 @@
+<view class="topics">
+  <view class="list">
+    <block wx:for="{{ topics }}" wx:for-item="topic" wx:key="topic.id">
+      <view class="topic" data-id="{{ topic.id }}" data-followers_count="{{ topic.followers_count }}" data-best_answerers_count="{{ topic.best_answerers_count }}" data-best_answers_count="{{ topic.best_answers_count }}" data-name="{{ topic.name }}" bindtap="onViewTap">
+        <image src="{{ topic.avatar_url }}"></image>
+        <view class="mask"></view>
+        <view class="name">{{ topic.name }}</view>
+      </view>
+    </block>
+  </view>
+</view>

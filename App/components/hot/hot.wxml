@@ -1,0 +1,15 @@
+<import src="../../components/live/live_middle.wxml" />
+<template name="hot">
+  <scroll-view scroll-x="true" class="header">
+    <view class="nav">
+      <view class="{{ type === 'Week' ? 'selected' : ''}}" data-type="Week" bindtap="onChangeTab">7 天热门</view>
+      <view class="{{ type === 'Month' ? 'selected' : ''}}" data-type="Month" bindtap="onChangeTab">30 天热门</view>
+    </view>
+  </scroll-view>
+  <view class="banner"></view>
+  <scroll-view class="list" style="height: {{ windowHeight }}px; width: {{ windowWidth }}px;" scroll-y="true" lower-threshold="800">
+    <block wx:for="{{ lives }}" wx:for-item="live" wx:key="live.id">
+      <template is="m-live" data="{{live: live}}" />
+    </block>
+  </scroll-view>
+</template>

@@ -1,0 +1,64 @@
+.m-user {
+  position: relative;
+  margin: 20rpx;
+  border-bottom: 1px solid #eaeaea;
+  padding-bottom: 20rpx;
+}
+
+.m-user .cover {
+  width: 190rpx;
+  height: 190rpx;
+  border-radius: 8rpx;
+  float: left;
+  margin-right: 20rpx;
+  background-color: #e7ddc7;
+}
+
+.m-user .label {
+  position: absolute;
+  left: -2rpx;
+  top: 20rpx;
+  width: 57rpx;
+  height: 37rpx;
+}
+
+.m-user .info {
+  height: 190rpx;
+  overflow: hidden;
+  position: relative;
+}
+
+.m-user .title {
+  font-size: 30rpx;
+  line-height: 30rpx;
+  font-weight: bold;
+}
+
+.m-user .desc {
+  color: #5c5c5c;
+  font-size: 24rpx;
+  margin-top: 30rpx;
+  line-height: 34rpx;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.m-user .detail {
+  color: #999;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  font-size: 22rpx;
+}
+
+.m-user .avatar {
+  width: 36rpx;
+  height: 36rpx;
+  float: left;
+  margin-right: 8rpx;
+  border-radius: 36rpx;
+  vertical-align: bottom;
+}

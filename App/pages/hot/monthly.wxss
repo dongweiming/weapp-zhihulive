@@ -1,0 +1,5 @@
+@import "../../components/hot/hot.wxss";
+
+.banner {
+  background-image: url(http://localhost:8300/static/images/monthly.svg);
+}

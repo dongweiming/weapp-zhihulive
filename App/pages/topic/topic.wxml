@@ -1,0 +1,15 @@
+<import src="../../components/live/live.wxml" />
+<view class="header">
+  <image style="width: {{ windowWidth }}px;" src="http://localhost:8300/static/images/default-topic.png" mode="aspectFill"></image>
+  <view class="title">
+    <view class="h2">{{ name }}</view>
+    <view class="detail">{{ followers_count }}关注 / {{ best_answerers_count }} 优秀回答者 / {{ best_answers_count }} 优秀回答 </view>
+  </view>
+  <view class="photo"></view>
+  <view class="mask"></view>
+</view>
+<scroll-view class="list" style="height: {{ windowHeight }}px; width: {{ windowWidth }}px;" scroll-y="true" bindscrolltolower="loadMore" lower-threshold="800">
+  <block wx:for="{{ lives }}" wx:for-item="live" wx:key="live.id">
+    <template is="m-live" data="{{live: live}}" />
+  </block>
+</scroll-view>

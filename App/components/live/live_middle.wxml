@@ -1,0 +1,24 @@
+<import src="../widget/rating.wxml" />
+<template name="m-live">
+  <view class="m-live" bindtap="onViewTap" data-id="{{ live.id }}" data-type="live">
+    <image class="cover" src="{{ live.cover }}" background-size="cover"></image>
+    <view class="info">
+      <view class="title">
+        <text>{{ live.subject }}</text>
+      </view>
+      <view class="rating">
+        <template is="m-rating" data="{{count: live.feedback_score, size: 'm'}}" />
+      </view>
+      <view class="user">
+        <image class="avatar" src="{{ live.speaker.avatar_url }}"></image>
+        <view class="name">{{ live.speaker.name }}</view>
+      </view>
+      <view class="desc">
+        <view>
+          <text>{{ live.outline || live.description }}</text>
+        </view>
+      </view>
+      <view class="detail">{{ live.liked_num }} 喜欢 / {{ live.seats_taken }} 参加</view>
+    </view>
+  </view>
+</template>

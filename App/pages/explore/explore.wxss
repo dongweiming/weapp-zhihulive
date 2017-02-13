@@ -1,0 +1,22 @@
+@import "../../components/live/live.wxss";
+
+page {
+  background-color: #f6f6f6;
+}
+
+.list {
+}
+
+.m-live {
+  margin: 20rpx;
+}
+
+.live-title {
+  margin-bottom: 10rpx;
+}
+
+.loading {
+  color: #b0b0b0;
+  text-align: center;
+  margin: 20rpx 0;
+}

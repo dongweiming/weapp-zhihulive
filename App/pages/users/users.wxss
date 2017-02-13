@@ -1,0 +1,26 @@
+@import "../../components/user/user_small.wxss";
+
+.picker {
+  color: #fff;
+  background-color: #4abdcc;
+}
+
+.section {
+  margin: 20rpx;
+  position: relative;
+}
+
+.section view {
+  padding: 10rpx;
+}
+
+.arrow {
+  border: solid currentColor;
+  border-width: 0 3rpx 3rpx 0;
+  display: inline-block;
+  padding: 6rpx;
+  transform: rotate(45deg);
+  position: absolute;
+  right: 20rpx;
+  top: 20rpx;
+}

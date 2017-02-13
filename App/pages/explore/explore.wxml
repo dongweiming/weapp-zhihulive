@@ -1,0 +1,9 @@
+<import src="../../components/live/live.wxml" />
+<scroll-view class="list" style="height: {{ windowHeight }}px; width: {{ windowWidth }}px;" scroll-y="true" bindscrolltolower="loadMore" lower-threshold="800">
+  <block wx:for="{{ lives }}" wx:for-item="live" wx:key="live.id">
+    <template is="m-live" data="{{live: live}}" />
+  </block>
+  <view class="loading">
+    正在加载...
+  </view>
+</scroll-view>

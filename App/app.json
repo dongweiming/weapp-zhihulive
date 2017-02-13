@@ -1,0 +1,47 @@
+{
+  "pages": [
+    "pages/explore/explore",
+    "pages/search/search",
+    "pages/users/users",
+    "pages/users/user",
+    "pages/hot/weekly",
+    "pages/topic/hot_topics",
+    "pages/live/live",
+    "pages/topic/topic",
+    "pages/hot/monthly"
+  ],
+  "window": {
+    "backgroundTextStyle": "dark",
+    "navigationBarBackgroundColor": "#4abdcc",
+    "navigationBarTitleText": "知乎Live",
+    "navigationBarTextStyle": "white",
+    "enablePullDownRefresh": true
+  },
+  "tabBar": {
+    "color": "#b0b0b0",
+    "selectedColor": "#4abdcc",
+    "borderStyle": "white",
+    "backgroundColor": "#fff",
+    "list": [
+      {
+        "pagePath": "pages/explore/explore",
+        "iconPath": "images/explore_normal.png",
+        "selectedIconPath": "images/explore_pressed.png",
+        "text": "发现"
+      },
+      {
+        "pagePath": "pages/hot/weekly",
+        "iconPath": "images/explore_normal.png",
+        "selectedIconPath": "images/explore_pressed.png",
+        "text": "热门"
+      },
+      {
+        "pagePath": "pages/search/search",
+        "iconPath": "images/search-off.png",
+        "selectedIconPath": "images/search-on.png",
+        "text": "搜索"
+      }
+    ]
+  },
+  "debug": true
+}

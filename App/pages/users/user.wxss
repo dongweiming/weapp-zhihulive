@@ -1,0 +1,103 @@
+@import "../../components/live/live_small.wxss";
+
+.sep {
+  height: 20rpx;
+}
+
+.cover image {
+  background-color: #4abdcc;
+  width: 100%;
+  height: 100rpx;
+  background-size: "cover";
+}
+
+.main {
+  position: relative;
+  width: 100%;
+  background: #fff;
+  box-sizing: border-box;
+  margin-bottom: 60rpx;
+}
+
+.m-user .info {
+  margin: 0 24rpx 24rpx;
+}
+
+.m-user .info .avatar {
+  display: inline-block;
+  overflow: hidden;
+  border: 4rpx solid #fff;
+  border-radius: 8rpx;
+  vertical-align: top;
+  position: absolute;
+  top: -30rpx;
+  left: 24rpx;
+  z-index: 4;
+}
+
+.m-user .info .avatar image {
+  border-radius: 4px;
+  width: 160rpx;
+  height: 160rpx;
+}
+
+.content {
+  padding-left: 32rpx;
+  border-left: 164rpx solid transparent;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.content .username {
+  font-size: 34rpx;
+  font-weight: 500;
+  line-height: 60rpx;
+}
+
+.content .headline {
+  font-size: 28rpx;
+  white-space: nowrap;
+  word-break: break-word;
+}
+
+.desc {
+  width: 100%;
+  font-size: 14px;
+  line-height: 1.8;
+  color: #404040;
+  display: flex;
+  margin-top: 60rpx;
+}
+
+.desc .label {
+  width: 60px;
+  margin-right: 37px;
+  font-weight: 500;
+}
+
+.desc .value {
+  flex: 1;
+  overflow: hidden;
+  font-size: 24rpx;
+}
+
+.m-live-count {
+  background-color: #4abdcc;
+  height: 24rpx;
+  color: #fff;
+  padding: 24rpx;
+  line-height: 1;
+}
+
+.all {
+  background-color: #4abdcc;
+  color: #fff;
+  font-size: 30rpx;
+  border-radius: 80rpx;
+  height: 80rpx;
+  line-height: 80rpx;
+  text-align: center;
+  margin: 0 20rpx 40rpx;
+}

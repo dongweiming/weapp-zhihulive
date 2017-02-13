@@ -1,0 +1,18 @@
+<import src="../../components/user/user_small.wxml" />
+<view class="section">
+  <picker bindchange="bindPickerChange" range-key="name" range="{{sortArray}}">
+    <view class="picker">
+      排序方式: {{sortMap[orderBy]}}
+      <text class="arrow"></text>
+    </view>
+  </picker>
+</view>
+<scroll-view class="list" style="height: {{ windowHeight - 70 / pixelRatio }}px; width: {{ windowWidth }}px;" scroll-y="true" bindscrolltolower="loadMore" lower-threshold="800">
+  <block wx:for="{{ users }}" wx:for-item="user" wx:key="user.id">
+    <template is="m-user" data="{{user: user}}" />
+  </block>
+  <view class="sep" wx:if="{{users}}"></view>
+  <block wx:for="{{ lives }}" wx:for-item="live" wx:key="live.id">
+    <template is="m-live" data="{{live: live}}" />
+  </block>
+</scroll-view>

@@ -1,0 +1,96 @@
+.m-live {
+  position: relative;
+  margin: 20rpx;
+  border-bottom: 1px solid #eaeaea;
+  padding-bottom: 20rpx;
+}
+
+.m-live .cover {
+  width: 220rpx;
+  height: 220rpx;
+  border-radius: 8rpx;
+  float: left;
+  margin-right: 20rpx;
+  background-color: #e7ddc7;
+}
+
+.m-live .label {
+  position: absolute;
+  left: -2rpx;
+  top: 20rpx;
+  width: 57rpx;
+  height: 37rpx;
+}
+
+.m-live .info {
+  height: 220rpx;
+  overflow: hidden;
+  position: relative;
+}
+
+.m-live .title {
+  font-size: 28rpx;
+  line-height: 28rpx;
+  font-weight: bold;
+}
+
+.m-live .rating {
+  color: #999;
+  font-size: 22rpx;
+  position: absolute;
+  top: 62rpx;
+}
+
+.m-live .rating image {
+  width: 26rpx;
+  height: 26rpx;
+  margin-right: 7rpx;
+}
+
+.m-live .m-rating {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.m-live .rating .count {
+  margin-left: 10rpx;
+}
+
+.m-live .desc {
+  color: #5c5c5c;
+  font-size: 24rpx;
+  line-height: 34rpx;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  position: absolute;
+  bottom: 46rpx;
+}
+
+.m-live .detail {
+  color: #999;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  font-size: 22rpx;
+}
+
+.m-live .avatar {
+  width: 36rpx;
+  height: 36rpx;
+  float: left;
+  margin-right: 8rpx;
+  border-radius: 36rpx;
+  vertical-align: bottom;
+}
+
+.m-live .user {
+  position: absolute;
+  width: 100%;
+  top: 62rpx;
+  left: 200rpx;
+  line-height: 36rpx;
+  font-size: 20rpx;
+}

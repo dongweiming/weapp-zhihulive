@@ -1,0 +1,2 @@
+<import src="../../components/hot/hot.wxml" />
+<template is="hot" data="{{lives, type}}" />

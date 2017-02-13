@@ -1,0 +1,20 @@
+.m-rating {
+  float: left;
+}
+
+.m-rating image {
+  width: 16rpx;
+  height: 16rpx;
+  float: left;
+  position: relative;
+  top: 6rpx;
+  margin-right: 8rpx;
+}
+
+.rating .count {
+  float: left;
+  margin-left: 10rpx;
+  font-size: 18rpx;
+  color: rgba(255, 255, 255, 0.6);
+  text-shadow: 2rpx 4rpx rgba(0, 0, 0, 0.12);
+}

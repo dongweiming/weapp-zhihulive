@@ -1,0 +1,14 @@
+<template name="m-rating">
+  <view class="m-rating">
+    <block wx:if="{{ size === 's' }}" wx:for="{{ [1, 2, 3, 4, 5] }}" wx:for-item="i" wx:key="*this">
+      <image wx:if="{{ i <= count }}" src="../../images/rating/star_s.png"></image>
+      <image wx:if="{{ i > count && i - 1 < count }}" src="../../images/rating/semistar_s.png"></image>
+      <image wx:if="{{ i > count && !(i - 1 < count) }}" src="../../images/rating/unstar_s.png"></image>
+    </block>
+    <block wx:if="{{ size === 'm' }}" wx:for="{{ [1, 2, 3, 4, 5] }}" wx:for-item="i" wx:key="*this">
+      <image wx:if="{{ i <= count }}" src="../../images/rating/star.png"></image>
+      <image wx:if="{{ i > count && i - 1 < count }}" src="../../images/rating/semistar.png"></image>
+      <image wx:if="{{ i > count && !(i - 1 < count) }}" src="../../images/rating/unstar.png"></image>
+    </block>
+  </view>
+</template>
