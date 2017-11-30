@@ -29,7 +29,7 @@ class User(Base):
     gender = Column(SmallInteger, default=2)
     headline = Column(String(200))
     avatar_url = Column(String(100), nullable=False)
-    bio = Column(String(200))
+    bio = Column(String(500))
     description = Column(String(1000))
     live_count = Column(Integer, default=0)
     updated_time = Column(DateTime, default=datetime.now)
@@ -49,7 +49,8 @@ class User(Base):
             session.add(r)
         try:
             session.commit()
-        except:
+        except Exception as e:
+            print('Error: {}'.format(e))
             session.rollback()
         else:
             return r

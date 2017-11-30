@@ -33,6 +33,7 @@ class Live(DocType):
     speaker_id = Integer()
     speaker_name = Text(analyzer='ik_max_word')
     feedback_score = Float() # 评分
+    score = Float() # 评分
     topic_names = Text(analyzer='ik_max_word')  # 话题标签名字
     seats_taken = Integer()  # 参与人数
     subject = Text(analyzer='ik_max_word')  # 标题
@@ -42,7 +43,9 @@ class Live(DocType):
     starts_at = Date()
     outline = Text(analyzer='ik_max_word')  # Live内容
     speaker_message_count = Integer()
+    feedback_count = Integer()  # 参与评价人数
     tag_names = Text(analyzer='ik_max_word')
+    tags = Keyword()
     liked_num = Integer()
     topics = Keyword()
     live_suggest = Completion(analyzer=ik_analyzer)
@@ -62,7 +65,7 @@ class Live(DocType):
         return LIVE_URL.format(self.id)
 
     class Meta:
-        index = 'live130'
+        index = 'live97'
 
     def to_dict(self, include_extended=True):
         d = super().to_dict()

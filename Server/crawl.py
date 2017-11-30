@@ -14,15 +14,16 @@ from elasticsearch_dsl import Q
 from elasticsearch_dsl.connections import connections
 from elasticsearch.exceptions import NotFoundError
 
-from models import User, Live, Topic, session
+from models import User, Live, Topic, session, Review
 from models.live import init as live_init
 from client import ZhihuClient
 from utils import flatten_live_dict
-from config import SPEAKER_KEYS, LIVE_KEYS, TOPIC_KEYS, ZHUANLAN_URL
+from config import SPEAKER_KEYS, LIVE_KEYS, TOPIC_KEYS, ZHUANLAN_URL, REVIEW_KEYS
 
 LIVE_API_URL = 'https://api.zhihu.com/lives/{type}?purchasable=0&limit=10&offset={offset}'  # noqa
 ZHUANLAN_API_URL = 'https://zhuanlan.zhihu.com/api/columns/zhihulive/posts?limit=20&offset={offset}'  # noqa
 TOPIC_API_URL = 'https://api.zhihu.com/topics/{}'
+REVIEW_API_URL = 'https://api.zhihu.com/lives/{id}/reviews'  # noqa
 LIVE_TYPE = frozenset(['ongoing', 'ended'])
 IMAGE_FOLDER = 'static/images/zhihu'
 LIVE_REGEX = re.compile(r'<a href="https://(www.)?zhihu.com/lives/(\d+)(.*)?"')  # noqa
@@ -144,6 +145,20 @@ class Crawler:
                 rs['avatar_url'].replace('_s', '_xl'))
             Topic.add_or_update(**flatten_live_dict(rs, TOPIC_KEYS))
 
+    async def parse_review(self, response):
+        rs = await response.json()
+        if response.status == 200:
+            for review in rs['data']:
+                review.pop('author')  # 暂时不关注评价者
+                dct = flatten_live_dict(review, REVIEW_KEYS)
+                dct['created_at'] = datetime.fromtimestamp(dct['created_at'])
+                dct['live_id'] = response.url.split('/')[4]
+                Review.create(**dct)
+            paging = rs['paging']
+            if not paging['is_end']:
+                next_url = paging['next']
+                return paging['next']
+
     async def parse_live_link(self, response):
         rs = await response.json()
 
@@ -155,8 +170,10 @@ class Crawler:
                     speaker['member']['avatar_url'].replace('_s', '_xl'))
                 user = User.add(speaker_id=speaker_id,
                                 **flatten_live_dict(speaker, SPEAKER_KEYS))
+                if not user:
+                    continue
                 live_dict = flatten_live_dict(live, LIVE_KEYS)
-                topics = live_dict.pop('topics')
+                topics = live_dict.pop('topics', [])
                 for topic in topics:
                     topic_id = topic['id']
                     if topic_id not in self.seen_topics:
@@ -165,8 +182,9 @@ class Crawler:
                                      self.max_redirect)
 
                 topics = [t['name'] for t in topics]
-                tags = ' '.join(set(sum([(t['name'], t['short_name'])
-                                         for t in live_dict.pop('tags')], ())))
+                tags = set(sum([(t['name'], t['short_name'])
+                                for t in live_dict.pop('tags')], ()))
+                tag_names = ' '.join(tags)
                 live_dict['speaker_id'] = user.id
                 live_dict['speaker_name'] = user.name
                 live_dict['topics'] = topics
@@ -174,14 +192,16 @@ class Crawler:
                 live_dict['seats_taken'] = live_dict.pop('seats')['taken']
                 live_dict['amount'] = live_dict.pop('fee')['amount'] / 100
                 live_dict['status'] = live_dict['status'] == 'public'
-                live_dict['tag_names'] = tags
+                live_dict['tag_names'] = tag_names
+                live_dict['tags'] = list(tags)
                 live_dict['starts_at'] = datetime.fromtimestamp(
                     live_dict['starts_at'])
                 live_dict['live_suggest'] = gen_suggests(
-                    live_dict['topic_names'], tags, live_dict['outline'],
+                    live_dict['topic_names'], tag_names, live_dict['outline'],
                     user.name, live_dict['subject'])
 
                 result = await Live.add(**live_dict)
+                self.add_url(REVIEW_API_URL.format(id=live['id']), self.max_redirect)
                 if result.meta['version'] == 1:
                     user.incr_live_count()
 
@@ -209,8 +229,12 @@ class Crawler:
 
         try:
             if 'api.zhihu.com' in url:
-                parse_func = (self.parse_topic_link if 'topics' in url
-                              else self.parse_live_link)
+                if 'topics' in url:
+                    parse_func = self.parse_topic_link
+                elif 'reviews' in url:
+                    parse_func = self.parse_review
+                else:
+                    parse_func = self.parse_live_link
                 next_url = await parse_func(response)
             else:
                 next_url = await self.parse_zhuanlan_link(response)
@@ -219,7 +243,7 @@ class Crawler:
                 self.add_url(next_url, max_redirect)
             else:
                 for type in self.__stopped:
-                    if type in url:
+                    if type in url and 'reviews' not in url:
                         self.__stopped[type] = True
         finally:
             response.release()
@@ -230,7 +254,8 @@ class Crawler:
                 url, max_redirect = await self.q.get()
                 if url in self.seen_urls:
                     type = url.split('/')[-1].split('?')[0]
-                    if not type.isdigit() and not self.__stopped[type]:
+                    if not type.isdigit() and (type != 'reviews' and
+                                               not self.__stopped[type]):
                         self.add_url(get_next_url(url), max_redirect)
                 await self.fetch(url, max_redirect)
                 self.q.task_done()

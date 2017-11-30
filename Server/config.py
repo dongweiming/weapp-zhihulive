@@ -22,13 +22,15 @@ DB_URI = 'mysql+pymysql://localhost/test?charset=utf8mb4'
 
 SPEAKER_KEYS = ['name', 'gender', 'headline', 'avatar_url', 'bio',
                 'description']
-LIVE_KEYS = ['id', 'feedback_score', 'seats', 'subject', 'fee',
+LIVE_KEYS = ['id', 'seats', 'subject', 'fee',
              'description', 'status', 'starts_at', 'outline',
              'speaker_message_count', 'liked_num', 'tags', 'topics']
 TOPIC_KEYS = ['id', 'avatar_url', 'best_answerers_count', 'best_answers_count',
               'name', 'questions_count', 'followers_count']
+REVIEW_KEYS = ['id', 'created_at', 'content', 'score']
 SEARCH_FIELDS = ['subject^5', 'outline^2', 'description', 'topic_names^10',
                  'tag_names^5']
 SUGGEST_USER_LIMIT = 2
 SUGGEST_LIMIT = 6
 DOMAIN = 'http://localhost:8300'
+
